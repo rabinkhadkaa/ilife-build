@@ -1,0 +1,9 @@
+mappings:
+  - env: prod
+    cssBranch: feature
+
+  - env: future
+    cssBranch: future
+
+  - env: qa
+    cssBranch: qa-style

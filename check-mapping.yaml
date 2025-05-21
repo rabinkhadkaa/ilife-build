@@ -1,0 +1,25 @@
+parameters:
+  - name: environment
+    type: string
+
+steps:
+  - script: |
+      #!/bin/bash
+      DEPLOY_ENV="${{ parameters.environment }}"
+      MAPPING_FILE="$(Build.SourcesDirectory)/ilife-build/check-mapping.yml"
+      DEFAULT_BRANCH="main"
+
+      echo "Deploy Environment: $DEPLOY_ENV"
+      echo "Mapping File: $MAPPING_FILE"
+
+      MAPPED_BRANCH=$(yq e ".mappings[] | select(.env == \"$DEPLOY_ENV\") | .cssBranch" "$MAPPING_FILE")
+
+      if [ -n "$MAPPED_BRANCH" ]; then
+        echo "✅ Found mapping. Using ilifes-style-css branch: $MAPPED_BRANCH"
+      else
+        echo "⚠️ No mapping found. Falling back to default branch: $DEFAULT_BRANCH"
+        MAPPED_BRANCH="$DEFAULT_BRANCH"
+      fi
+
+      echo "##vso[task.setvariable variable=cssRepoBranch]$MAPPED_BRANCH"
+    displayName: 'Determine CSS Branch by Environment'
