@@ -12,13 +12,16 @@ steps:
       echo "Deploy Environment: $DEPLOY_ENV"
       echo "Mapping File: $MAPPING_FILE"
 
-      MAPPED_BRANCH=$(yq e ".mappings[] | select(.env == \"$DEPLOY_ENV\") | .cssBranch" "$MAPPING_FILE")
-
-      if [ -n "$MAPPED_BRANCH" ]; then
-        echo "✅ Found mapping. Using ilifes-style-css branch: $MAPPED_BRANCH"
-      else
-        echo "⚠️ No mapping found. Falling back to default branch: $DEFAULT_BRANCH"
-        MAPPED_BRANCH="$DEFAULT_BRANCH"
+      if [ -f "$MAPPING_FILE" ]; then
+        echo "Mapping file found."
+        if grep -q "$DEPLOY_ENV" "$MAPPING_FILE"; then
+          echo "Environment $DEPLOY_ENV found in mapping file."
+          MAPPED_BRANCH=$(grep -A 1 "$DEPLOY_ENV" "$MAPPING_FILE" | tail -n 1 | cut -d ' ' -f 2)
+          echo "Mapped branch: $MAPPED_BRANCH"
+        else
+          echo "Environment $DEPLOY_ENV not found in mapping file. Using default branch."
+          MAPPED_BRANCH=$DEFAULT_BRANCH
+        fi
       fi
 
       echo "##vso[task.setvariable variable=cssRepoBranch]$MAPPED_BRANCH"
