@@ -1,3 +1,4 @@
+qa: develop
 prod: feature
 dev: develop
 local: main
