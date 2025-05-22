@@ -16,7 +16,7 @@ steps:
         echo "Mapping file found."
         if grep -q "$DEPLOY_ENV" "$MAPPING_FILE"; then
           echo "Environment $DEPLOY_ENV found in mapping file."
-          MAPPED_BRANCH=$(grep -A 1 "$DEPLOY_ENV" "$MAPPING_FILE" | tail -n 1 | cut -d ' ' -f 2)
+          MAPPED_BRANCH=$(grep "^$DEPLOY_ENV:" "$MAPPING_FILE" | cut -d ':' -f 2 | xargs)
           echo "Mapped branch: $MAPPED_BRANCH"
         else
           echo "Environment $DEPLOY_ENV not found in mapping file. Using default branch."

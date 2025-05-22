@@ -1,9 +1,4 @@
-mappings:
-  - env: prod
-    cssBranch: feature
-
-  - env: future
-    cssBranch: future
-
-  - env: qa
-    cssBranch: qa-style
+prod: feature
+dev: develop
+local: main
+# test: test
