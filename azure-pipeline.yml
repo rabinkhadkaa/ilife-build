@@ -1,0 +1,31 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  dockerRegistryServiceConnection: 'acr-ilifes-docker-connection-v2'  # Azure DevOps Docker registry connection
+  imageName: 'ilifes/php-base'
+  dockerfilePath: 'Dockerfile.base'
+  tag: 'latest'
+  containerRegistry: 'ilifesregistry.azurecr.io'  # e.g., ilifesregistry.azurecr.io
+
+stages:
+- stage: BuildBaseImage
+  displayName: 'Build Base Image Stage'
+  jobs:
+  - job: BuildAndPush
+    displayName: 'Build and Push Docker Base Image'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+
+    - task: Docker@2
+      displayName: 'Build and Push Docker Image'
+      inputs:
+        containerRegistry: $(dockerRegistryServiceConnection)
+        repository: $(imageName)
+        command: 'buildAndPush'
+        Dockerfile: $(dockerfilePath)
+        tags: |
+          $(tag)

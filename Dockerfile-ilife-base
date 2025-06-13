@@ -1,0 +1,14 @@
+FROM php:8.2-apache
+
+# Install tools, dependencies, enable Apache modules, PHP extensions
+RUN apt-get update && \
+    apt-get install -y wget unzip procps default-mysql-client curl vim net-tools gcc make && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN a2enmod rewrite ssl headers
+RUN docker-php-ext-install mysqli
+
+# Download Site24x7 install scripts, but don't run them yet
+RUN wget -O /InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh && \
+    wget -O /InstallDataExporter.sh https://staticdownloads.site24x7.com/apminsight/S247DataExporter/linux/InstallDataExporter.sh && \
+    chmod +x /Install*.sh
