@@ -17,7 +17,7 @@ stages:
   - job: BuildAndPush
     displayName: 'Build and Push Docker Base Image'
     pool:
-      vmImage: 'ubuntu-latest'
+      name: SelfHostedPool  # Use your self-hosted agent pool name
     steps:
 
     - task: Docker@2
