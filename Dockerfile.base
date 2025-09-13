@@ -24,11 +24,13 @@ RUN groupadd -g 1000 buildprocure && \
 COPY sudoers /etc/sudoers.d/buildprocure
 RUN chmod 0440 /etc/sudoers.d/buildprocure
 
-USER buildprocure
-WORKDIR /var/www/html
 
-# ✅ Dummy Entrypoint (can be overridden in downstream image)
+# ✅ Cpoy and make it executable as root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+
+USER buildprocure
+WORKDIR /var/www/html
 
 ENTRYPOINT ["/entrypoint.sh"]
