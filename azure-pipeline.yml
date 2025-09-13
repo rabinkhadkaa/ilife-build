@@ -4,7 +4,7 @@ trigger:
       - main
 
 variables:
-  dockerRegistryServiceConnection: 'acr-ilifes-docker-connection-v2'  # Azure DevOps Docker registry connection
+  dockerRegistryServiceConnection: 'ilifes-acr-docker'  # Azure DevOps Docker registry connection
   imageName: 'ilifes/php-base'
   dockerfilePath: 'Dockerfile.base'
   tag: 'latest'

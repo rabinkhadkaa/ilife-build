@@ -1,0 +1,2 @@
+# /etc/sudoers.d/buildprocure
+buildprocure ALL=(ALL) NOPASSWD:ALL

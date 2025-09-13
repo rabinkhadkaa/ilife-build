@@ -1,14 +1,34 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Install tools, dependencies, enable Apache modules, PHP extensions
+# Echo User for debugging
+RUN echo "User: $(whoami) | UID: $(id -u) | GID: $(id -g) | Groups: $(groups)"
+
+# ✅ Install system dependencies
 RUN apt-get update && \
-    apt-get install -y wget unzip procps default-mysql-client curl vim net-tools gcc make && \
+    apt-get install -y wget unzip procps default-mysql-client curl vim net-tools gcc make sudo && \
     rm -rf /var/lib/apt/lists/*
 
-RUN a2enmod rewrite ssl headers
+# PHP extensions
 RUN docker-php-ext-install mysqli
 
-# Download Site24x7 install scripts, but don't run them yet
+# ✅ Install site24x7 agents
 RUN wget -O /InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh && \
     wget -O /InstallDataExporter.sh https://staticdownloads.site24x7.com/apminsight/S247DataExporter/linux/InstallDataExporter.sh && \
     chmod +x /Install*.sh
+
+# ✅ Create buildprocure user
+RUN groupadd -g 1000 buildprocure && \
+    useradd -m -u 1000 -g buildprocure -s /bin/bash buildprocure
+
+# ✅ Copy sudoers file
+COPY sudoers /etc/sudoers.d/buildprocure
+RUN chmod 0440 /etc/sudoers.d/buildprocure
+
+USER buildprocure
+WORKDIR /var/www/html
+
+# ✅ Dummy Entrypoint (can be overridden in downstream image)
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
