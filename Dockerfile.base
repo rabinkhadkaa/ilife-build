@@ -1,34 +1,58 @@
 FROM php:8.2-fpm
 
-# Echo User for debugging
+# Echo user info for debugging
 RUN echo "User: $(whoami) | UID: $(id -u) | GID: $(id -g) | Groups: $(groups)"
 
-# ✅ Install system dependencies
+# =========================================================
+# 1. System dependencies
+# =========================================================
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget unzip procps default-mysql-client curl vim net-tools gcc make sudo && \
+    apt-get install -y --no-install-recommends \
+    wget unzip procps default-mysql-client curl vim net-tools gcc make sudo \
+    apache2 libapache2-mod-fcgid && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# PHP extensions
+# Enable Apache modules for PHP-FPM proxying
+RUN a2enmod proxy proxy_http proxy_fcgi setenvif rewrite ssl headers
+
+# =========================================================
+# 2. PHP extensions
+# =========================================================
 RUN docker-php-ext-install mysqli
 
-# ✅ Install site24x7 agents
+# =========================================================
+# 3. Site24x7 agents
+# =========================================================
 RUN wget -O /InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh && \
     wget -O /InstallDataExporter.sh https://staticdownloads.site24x7.com/apminsight/S247DataExporter/linux/InstallDataExporter.sh && \
     chmod +x /Install*.sh
 
-# ✅ Create buildprocure user
+# =========================================================
+# 4. Create buildprocure user
+# =========================================================
 RUN groupadd -g 1000 buildprocure && \
     useradd -m -u 1000 -g buildprocure -s /bin/bash buildprocure
 
-# ✅ Copy sudoers file
+# =========================================================
+# 5. Sudoers and Entrypoint
+# =========================================================
 COPY sudoers /etc/sudoers.d/buildprocure
 RUN chmod 0440 /etc/sudoers.d/buildprocure
 
-
-# ✅ Cpoy and make it executable as root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# =========================================================
+# 6. Default Apache configuration (can be overridden)
+# =========================================================
+# You can override this file when running locally or in downstream builds
+COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
+
+# Make sure Apache and PHP-FPM can both access /var/www/html
+RUN chown -R buildprocure:www-data /var/www/html
+
+# Expose both Apache and PHP-FPM ports
+EXPOSE 80 9000 443
 
 USER buildprocure
 WORKDIR /var/www/html
