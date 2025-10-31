@@ -54,7 +54,7 @@ RUN chown -R buildprocure:www-data /var/www/html
 # Expose both Apache and PHP-FPM ports
 EXPOSE 80 9000 443
 
-USER buildprocure
+USER root
 WORKDIR /var/www/html
 
 ENTRYPOINT ["/entrypoint.sh"]

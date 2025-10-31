@@ -1,5 +1,5 @@
 # /etc/sudoers.d/buildprocure
 root ALL=(ALL) NOPASSWD:ALL
-buildprocure ALL=(ALL) NOPASSWD: /opt/S247DataExporter/bin/service.sh, /usr/bin/*
+buildprocure ALL=(ALL) NOPASSWD: /usr/sbin/apachectl, /opt/S247DataExporter/bin/service.sh, /usr/bin/*
 # Allow members of the 'docker' group to execute docker commands without a password
 %sudo ALL=(ALL:ALL) ALL
